@@ -4,11 +4,11 @@ Figure Friday 2025 - week 25 challenge about Raleigh NC - Building Permits Issue
 
 ## Screenshot
 
-![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w24/blob/main/Screenshot%20from%202025-06-18%2008-39-45.png)
+![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w25/blob/main/Screenshot%20from%202025-06-22%2006-02-05.png)
 
-![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w24/blob/main/Screenshot%20from%202025-06-18%2008-40-03.png)
+![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w25/blob/main/Screenshot%20from%202025-06-22%2006-02-29.png)
 
-![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w24/blob/main/Screenshot%20from%202025-06-18%2008-40-15.png)
+![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w25/blob/main/Screenshot%20from%202025-06-22%2006-03-11.png)
 
-![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w24/blob/main/Screenshot%20from%202025-06-18%2008-40-27.png)
+![Directory structure](https://github.com/XLlobet/dash-figure-friday-2025-w25/blob/main/Screenshot%20from%202025-06-22%2006-03-23.png)
 
