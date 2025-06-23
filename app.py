@@ -1,11 +1,10 @@
 from    dash                        import Dash, Input, Output, dcc, html
-from    plotly.graph_objects        import Figure
 from    figures                     import plots
 import  dash_bootstrap_components   as dbc
 import  dash_customizable_app_style as dcas
 import  plotly.express              as px
 import  pandas                      as pd
-from datetime import datetime
+from    datetime                    import datetime
 
 
 df:     pd.DataFrame    = pd.read_csv("https://raw.githubusercontent.com/plotly/Figure-Friday/refs/heads/main/2025/week-25/Building_Permits_Issued_Past_180_Days.csv")
@@ -22,21 +21,35 @@ orders:         dict            = {'Week Day':  ['Monday', 'Tuesday', 'Wednesday
                                    "Month":     ["January", "February", "March", "April", "May", "June","July", "August", "September", "October", "November", "December"],
                                    }
 
-cat_dict:       dict            = {'estprojectcost': 'Project Cost', 'fee': 'Fee'}
 
+# Permits df
+rows       = []
 
-colors: list = [
-    "#440154", "#471164", "#482576", "#453781", "#3F4889",
-    "#39558C", "#31688E", "#2A788E", "#23888E", "#1F988B",
-    "#22A884", "#3FBC73", "#5CC863", "#7AD151", "#9DD93A",
-    "#BFD53E", "#D4E36B", "#EAE51A", "#FDE725", "#FCE225",
-    "#FAD221", "#F8C318", "#F5B016", "#F29E17", "#EF861A",
-    "#EB7120", "#E95C26", "#E6482E", "#E23338", "#DE1F40",
-    "#D60C4A", "#CC0952", "#C1065A", "#B8045F", "#AD0365",
-    "#A2026A", "#97036E", "#8B046F", "#7E056F", "#71066F",
-    "#63086C", "#540B68", "#450E62", "#37115A", "#2B1451",
-    "#201746", "#161A3C", "#0E1E31", "#0A2026", "#081F1C"
-]
+for value in orders['Month']:
+    current_df          = df[df['Month'] == value]
+    residential_df      = current_df[current_df['permitclassmapped'] == 'Residential']
+    nonresidential_df   = current_df[current_df['permitclassmapped'] == 'Non-Residential']
+    inside_city_df      = current_df[current_df['jurisdiction_inout_ral'] == 'Inside City Limits']
+    outside_city_df     = current_df[current_df['jurisdiction_inout_ral'] == 'Outside City Limits']
+    new_df              = current_df[current_df['workclassmapped'] == 'New']
+    existing_df         = current_df[current_df['workclassmapped'] == 'Existing']
+
+    rows.append({'Month':           value, 
+                 'Permits Amount':  len(current_df), 
+                 'Residential':     len(residential_df),
+                 'Non-Residential': len(nonresidential_df),
+                 'Inside City':     len(inside_city_df),
+                 'Outside City':    len(outside_city_df),
+                 'New':             len(new_df),
+                 'Existing':        len(existing_df),
+                 })
+
+permits_df:     pd.DataFrame    = pd.DataFrame(rows)
+
+cat_dict:       dict            = {'estprojectcost':    'Project Cost', 
+                                   'fee':               'Fee', 
+                                   'permitclassmapped': 'Permit Class',
+                                   'Week Day':          'Week Day'}
 
 cool_colors = [
     "#003f5c",  # deep navy blue
@@ -55,79 +68,6 @@ cool_colors = [
     "#8fd694",  # light moss green
 ]
 
-# for col in list(df.columns):
-
-#     print(col)
-#     print(df[col].dtype)
-#     print("\n\n")
-
-print('OBJECT')
-print("\n")
-print('workclass')
-print(set(list(df['workclass'])))
-print("\n\n")
-print('permitclassmapped')
-print(set(list(df['permitclassmapped'])))
-print("\n\n")
-print('constcompletedofficial')
-print(set(list(df['constcompletedofficial'])))
-print("\n\n")
-print('censuslanduse')
-print(set(list(df['censuslanduse'])))
-print("\n\n")
-print('contractorcompanyname')
-print(set(list(df['contractorcompanyname'])))
-print("\n\n")
-print('contractorcity')
-print(set(list(df['contractorcity'])))
-print("\n\n")
-print('countylocation')
-print(set(list(df['countylocation'])))
-print("\n\n")
-print('jurisdiction_inout_ral')
-print(set(list(df['jurisdiction_inout_ral'])))
-print("\n\n")
-print('statuscurrent')
-print(set(list(df['statuscurrent'])))
-print("\n\n")
-print('statuscurrentmapped')
-print(set(list(df['statuscurrentmapped'])))
-print("\n\n")
-print('workclassmapped')
-print(set(list(df['workclassmapped'])))
-print("\n\n")
-
-print('NUMBERS')
-print("\n")
-print('permitclass')
-print('estprojectcost')
-print('censuslandusecode')
-print('fee')
-print('housingunitstotal')
-print('latitude_perm')
-print('longitude_perm')
-print('originalzip')
-print('permitnum')
-
-print('DESCRIPTIONS')
-print("\n")
-print('proposedworkdescription')
-print('description')
-print('proposeduse')
-
-print('DATES')
-print("\n")
-print('applieddate')
-print('issueddate')
-print('expiresdate')
-print('issueddate_mth')
-print('issueddate_yr')
-print('recordupdatedate')
-print('CreationDate')
-print('EditDate')
-
-
-
 grid                            = plots.create_grid(df)
 
 app = Dash ("Figure Friday 2025 week 25", external_stylesheets=[dbc.themes.BOOTSTRAP])
@@ -139,7 +79,7 @@ app.layout = html.Div(
     children = [
         dcas.customize_app_selectors(),
         html.H1("Raleigh NC - Building Permits Issued Past 180 Days", className="p-4 mb-0"),
-        # grid,
+        grid,
         html.Div(
             id          = "main_div",
             className   = "row m-0 p-0 pt-4 text-center",
@@ -222,72 +162,145 @@ app.layout = html.Div(
                     children    = [
                         
                         dcc.Dropdown(
-                            className = "ms-4 me-4 mt-4 text-dark   ",
+                            className = "ms-4 me-4 mt-4 text-dark",
                             id = 'variable',
                             options = ['estprojectcost', 'fee'],
                             value = 'estprojectcost',
                         ),
-                        dcc.Loading(
+
+                        html.Div(
+                            className= "col-12 m-0 p-0",
                             children = [
-                                dcc.Store(id={"type": "figure-store", "index": "map_fig"}),
-                                dcc.Graph(
-                                    id = {"type": "graph", "index": "map_fig"},
-                        )], type='default'),
+                                dcc.Loading(
+                                    children = [
+                                        dcc.Store(id={"type": "figure-store", "index": "map_fig"}),
+                                        dcc.Graph(
+                                            id = {"type": "graph", "index": "map_fig"},
+                                )], type='default'),
+                            ]
+                        ),
+
+                        html.Div(
+                            className= "col-12 m-0 p-0",
+                            children = [
+                                dcc.Loading(
+                                    children = [
+                                        dcc.Store(id={"type": "figure-store", "index": "summary"}),
+                                        dcc.Graph(
+                                            id = {"type": "graph", "index": "summary"},
+                                            figure= px.histogram(permits_df, 
+                                                                 x='Month', 
+                                                                 y=['Permits Amount', 'Residential', 'Non-Residential', 'Inside City', 'Outside City', 'New', 'Existing'],
+                                                                 barmode='group'),
+                                )], type='default'),
+                            ]
+                        ),
+
+                        
+
+                        dcc.Dropdown(
+                            className = "ms-4 me-4 mt-4 text-dark",
+                            id = 'color',
+                            options = ['Week Day', 'permitclassmapped'],
+                            value = 'Week Day',
+                        ),
+
                         html.Div(
                             className= "col-6 m-0 p-0",
                             children = [
                                 dcc.Loading(
                                     children = [
-                                        dcc.Store(id={"type": "figure-store", "index": "line_week"}),
+                                        dcc.Store(id={"type": "figure-store", "index": "bar_week"}),
                                         dcc.Graph(
-                                            id = {"type": "graph", "index": "line_week"},
+                                            id = {"type": "graph", "index": "bar_week"},
                                         )], type='default'),
                             ]
                         ),
+                        
                         html.Div(
                             className= "col-6 m-0 p-0",
                             children = [
                                 dcc.Loading(
                                     children = [
-                                        dcc.Store(id={"type": "figure-store", "index": "line_month"}),
+                                        dcc.Store(id={"type": "figure-store", "index": "bar_month"}),
                                         dcc.Graph(
-                                            id = {"type": "graph", "index": "line_month"},
+                                            id = {"type": "graph", "index": "bar_month"},
                                         )], type='default'),
                             ]
-                        )
+                        ),
+
                     ])
                     
             ]),
     ])
 
 @app.callback(
-    Output({"type": "figure-store", "index": "line_week"}, 'data'),
-    Output({"type": "figure-store", "index": "line_month"}, 'data'),
+    Output({"type": "figure-store", "index": "summary"}, 'data'),
+    Input('variable', 'value')
+)
+def update_figure(variable):
+        
+    fig     = px.bar( permits_df, 
+                            x='Month', 
+                            y=['Permits Amount', 'Residential', 'Non-Residential', 'Inside City', 'Outside City', 'New', 'Existing'],
+                            barmode='group')
+    
+    return fig.to_dict()
+
+@app.callback(
     Output({"type": "figure-store", "index": "map_fig"}, 'data'),
     Input('variable', 'value')
 )
 def update_figure(variable):
+        
+    fig_map         = px.scatter_map(df, 
+                                     lat="latitude_perm", 
+                                     lon="longitude_perm", 
+                                     size=variable, 
+                                     color=variable,
+                                     map_style='carto-darkmatter',
+                                     zoom=9.5, 
+                                     height=550, 
+                                     color_continuous_scale=px.colors.sequential.Plasma_r).update_layout(coloraxis_colorbar=dict(title=dict(text=f'{cat_dict[variable]}')), font=dict(size=10))
+    
+    return fig_map.to_dict()
+
+
+@app.callback(
+    Output({"type": "figure-store", "index": "bar_week"}, 'data'),
+    Output({"type": "figure-store", "index": "bar_month"}, 'data'),
+    Input('variable', 'value'),
+    Input('color', 'value')
+)
+def update_bars(variable, color):
+
+    if color == 'Week Day':
+
+        color_seq = None
+
+    else:
+
+        color_seq = [cool_colors[0], cool_colors[12]]
     
     figure_day      = px.histogram( df, 
                                     x='Week Day',
                                     y=variable,
-                                    title=f'{cat_dict[variable]} per Week Day',
+                                    title=f'{cat_dict[variable]} per {cat_dict[color]}',
                                     template='plotly_white',
-                                    color='Week Day',
-                                    category_orders=orders).update_layout(yaxis_title=f'{cat_dict[variable]}')
+                                    color=color,
+                                    category_orders=orders,
+                                    color_discrete_sequence=color_seq).update_layout(yaxis_title=f'{cat_dict[variable]}', font=dict(size=10))
     figure_month    = px.histogram( df, 
                                     x='Month',
                                     y=variable,
-                                    title=f'{cat_dict[variable]} per Month and Week Day',
+                                    title=f'{cat_dict[variable]} per Month and {cat_dict[color]}',
                                     template='plotly_white',
-                                    color='Week Day',
-                                    category_orders=orders).update_layout(yaxis_title=f'{cat_dict[variable]}')
-    
-    fig_map = px.scatter_map(df, lat="latitude_perm", lon="longitude_perm", size=variable, color=variable,
-                        map_style='carto-darkmatter',zoom=9.5, height=550, color_continuous_scale=px.colors.sequential.Plasma_r).update_layout(coloraxis_colorbar=dict(title=dict(text=f'{cat_dict[variable]}')))
-    
-    return figure_day.to_dict(), figure_month.to_dict(), fig_map.to_dict()
+                                    color=color,
+                                    category_orders=orders,
+                                    color_discrete_sequence=color_seq).update_layout(yaxis_title=f'{cat_dict[variable]}', font=dict(size=10))
+
+    return figure_day.to_dict(), figure_month.to_dict()
 
 
 if __name__ == "__main__":
-    app.run(debug=False)
+    app.run(debug=True)
